@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use veil_sdk::{Chain, Intent, IntentPayload};
+    use std::thread;
+    use std::time::Duration;
+    use veil_sdk::{Chain, Intent, IntentPayload, VeilError};
 
     #[test]
     fn builder_creates_correct_intent() {
@@ -25,9 +27,6 @@ mod tests {
         let intent1 = Intent::transfer_sol("a".to_string(), 100);
         let intent2 = Intent::transfer_sol("a".to_string(), 100);
 
-        // Timestamp-based nonces should differ (unless created in same millisecond)
-        // We don't strictly assert inequality, but in practice they will differ
-        // This test mainly ensures no panic and nonce > 0
         assert!(intent1.nonce > 0);
         assert!(intent2.nonce > 0);
     }
@@ -41,14 +40,74 @@ mod tests {
         let manual = Intent {
             version: 1,
             chain: Chain::Solana,
-            nonce: built.nonce, // Use same nonce for byte comparison
+            nonce: built.nonce,
             payload: IntentPayload::TransferSol {
                 to: recipient,
                 lamports,
             },
         };
 
-        // Should produce identical bytes when nonce matches
         assert_eq!(built.to_bytes().unwrap(), manual.to_bytes().unwrap());
+    }
+
+    #[test]
+    fn nonce_monotonically_non_decreasing() {
+        let a = Intent::transfer_sol("a".to_string(), 100);
+        thread::sleep(Duration::from_millis(2));
+        let b = Intent::transfer_sol("a".to_string(), 100);
+        assert!(b.nonce >= a.nonce);
+    }
+
+    #[test]
+    fn validate_rejects_zero_lamports() {
+        let intent = Intent::transfer_sol("11111111111111111111111111111111".to_string(), 0);
+        let result = intent.validate();
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            VeilError::InvalidIntent(msg) => assert!(msg.contains("greater than 0")),
+            _ => panic!("expected InvalidIntent error"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_empty_recipient() {
+        let intent = Intent::transfer_sol("".to_string(), 100);
+        let result = intent.validate();
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            VeilError::InvalidIntent(msg) => assert!(msg.contains("not be empty")),
+            _ => panic!("expected InvalidIntent error"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_long_recipient() {
+        let long_addr = "a".repeat(45);
+        let intent = Intent::transfer_sol(long_addr, 100);
+        let result = intent.validate();
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            VeilError::InvalidIntent(msg) => assert!(msg.contains("too long")),
+            _ => panic!("expected InvalidIntent error"),
+        }
+    }
+
+    #[test]
+    fn validate_accepts_valid_intent() {
+        let intent = Intent::transfer_sol("11111111111111111111111111111111".to_string(), 100);
+        assert!(intent.validate().is_ok());
+    }
+
+    #[test]
+    fn validate_accepts_max_length_recipient() {
+        let addr_44 = "a".repeat(44);
+        let intent = Intent::transfer_sol(addr_44, 100);
+        assert!(intent.validate().is_ok());
+    }
+
+    #[test]
+    fn validate_accepts_min_length_recipient() {
+        let intent = Intent::transfer_sol("1".to_string(), 100);
+        assert!(intent.validate().is_ok());
     }
 }
