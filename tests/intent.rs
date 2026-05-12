@@ -6,10 +6,8 @@ mod tests {
 
     #[test]
     fn builder_creates_correct_intent() {
-        let intent = Intent::transfer_sol(
-            "99999999999999999999999999999999".to_string(),
-            500_000_000,
-        );
+        let intent =
+            Intent::transfer_sol("99999999999999999999999999999999".to_string(), 500_000_000);
 
         assert_eq!(intent.version, 1);
         assert_eq!(intent.chain, Chain::Solana);

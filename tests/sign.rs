@@ -48,10 +48,7 @@ fn sign_produces_signed_intent() {
 #[test]
 fn sign_pubkey_matches_signer() {
     let signer = TestSigner::new();
-    let intent = Intent::transfer_sol(
-        "11111111111111111111111111111111".to_string(),
-        500_000_000,
-    );
+    let intent = Intent::transfer_sol("11111111111111111111111111111111".to_string(), 500_000_000);
 
     let signed = intent.sign(&signer).unwrap();
 
@@ -96,7 +93,10 @@ fn wrong_signer_fails_verification() {
     let sig: Signature = Signature::from_slice(&signed.signature).unwrap();
 
     assert!(
-        signer_b.verifying_key.verify(hash.as_bytes(), &sig).is_err(),
+        signer_b
+            .verifying_key
+            .verify(hash.as_bytes(), &sig)
+            .is_err(),
         "signature should NOT verify with wrong key"
     );
 }
