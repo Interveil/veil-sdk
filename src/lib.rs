@@ -4,6 +4,7 @@ pub mod intent;
 pub mod signer;
 pub mod types;
 
+pub use client::{Client, SubmitResponse};
 pub use error::VeilError;
 pub use intent::intent::Intent;
 pub use intent::payload::IntentPayload;
