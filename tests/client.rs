@@ -99,7 +99,10 @@ fn submit_returns_tx_hash() {
 
     let client = Client::new(&base_url);
     let signer = TestSigner::new();
-    let intent = Intent::transfer_sol("11111111111111111111111111111111".to_string(), 1_000_000_000);
+    let intent = Intent::transfer_sol(
+        "11111111111111111111111111111111".to_string(),
+        1_000_000_000,
+    );
     let signed = intent.sign(&signer).unwrap();
     let response = client.submit(&signed).unwrap();
 
@@ -162,9 +165,11 @@ fn submit_sends_exact_json_structure() {
 
     // intent: valid base64 (non-empty, only base64 chars)
     assert!(!intent_b64.is_empty());
-    assert!(intent_b64
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '/' || c == '='));
+    assert!(
+        intent_b64
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '/' || c == '=')
+    );
 }
 
 #[test]
@@ -174,7 +179,10 @@ fn submit_returns_error_on_500() {
 
     let client = Client::new(&base_url);
     let signer = TestSigner::new();
-    let intent = Intent::transfer_sol("11111111111111111111111111111111".to_string(), 1_000_000_000);
+    let intent = Intent::transfer_sol(
+        "11111111111111111111111111111111".to_string(),
+        1_000_000_000,
+    );
     let signed = intent.sign(&signer).unwrap();
 
     let result = client.submit(&signed);
@@ -192,7 +200,10 @@ fn submit_returns_error_on_invalid_json_response() {
 
     let client = Client::new(&base_url);
     let signer = TestSigner::new();
-    let intent = Intent::transfer_sol("11111111111111111111111111111111".to_string(), 1_000_000_000);
+    let intent = Intent::transfer_sol(
+        "11111111111111111111111111111111".to_string(),
+        1_000_000_000,
+    );
     let signed = intent.sign(&signer).unwrap();
 
     let result = client.submit(&signed);
@@ -206,7 +217,10 @@ fn submit_returns_error_on_missing_tx_hash() {
 
     let client = Client::new(&base_url);
     let signer = TestSigner::new();
-    let intent = Intent::transfer_sol("11111111111111111111111111111111".to_string(), 1_000_000_000);
+    let intent = Intent::transfer_sol(
+        "11111111111111111111111111111111".to_string(),
+        1_000_000_000,
+    );
     let signed = intent.sign(&signer).unwrap();
 
     let result = client.submit(&signed);

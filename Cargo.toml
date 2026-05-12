@@ -1,7 +1,14 @@
 [package]
 name = "veil-sdk"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+rust-version = "1.85"
+description = "A portable execution language for intent-based Solana transactions — build, sign, and submit intents without holding keys"
+license = "Apache-2.0"
+repository = "https://github.com/Interveil/veil-sdk"
+documentation = "https://docs.rs/veil-sdk"
+keywords = ["solana", "blockchain", "intent", "transaction", "sdk"]
+categories = ["cryptography::cryptocurrencies"]
 
 [dependencies]
 bincode = "1.3"
