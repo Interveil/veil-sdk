@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use veil_sdk::{Chain, Intent, IntentPayload};
+    use interveil_sdk::{Chain, Intent, IntentPayload};
 
     fn make_intent(nonce: u64, lamports: u64) -> Intent {
         Intent {

@@ -1,4 +1,4 @@
-use veil_sdk::{Chain, Intent, IntentPayload};
+use interveil_sdk::{Chain, Intent, IntentPayload};
 
 #[test]
 fn intent_to_bytes_works() {
