@@ -1,6 +1,6 @@
 # Veil SDK
 
-[![CI](https://github.com/Interveil/veil-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/Interveil/veil-sdk/actions/workflows/ci.yml)
+[![CI](https://github.com/Interveil/interveil-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/Interveil/interveil-sdk/actions/workflows/ci.yml)
 
 A portable execution language for intent-based Solana transactions. Veil SDK sits between a wallet and a node — it builds and serializes intents. It is **not** a wallet and **not** a node.
 
@@ -8,13 +8,13 @@ A portable execution language for intent-based Solana transactions. Veil SDK sit
 
 ```toml
 [dependencies]
-veil-sdk = "0.1"
+interveil-sdk = "0.1"
 ```
 
 ## Quick Start
 
 ```rust
-use veil_sdk::{Client, Intent, Signer};
+use interveil_sdk::{Client, Intent, Signer};
 
 // 1. Build an intent in one line
 let intent = Intent::transfer_sol(

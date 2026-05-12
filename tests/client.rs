@@ -1,11 +1,11 @@
 use ed25519_dalek::{Signature, Signer as EdSigner, SigningKey, VerifyingKey};
+use interveil_sdk::{Client, Intent, Signer, VeilError};
 use rand::rngs::OsRng;
 use std::io::{Read, Write};
 use std::net::TcpListener;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
-use veil_sdk::{Client, Intent, Signer, VeilError};
 
 /// Test signer using ed25519-dalek — simulates what wallet-sdk would do
 struct TestSigner {

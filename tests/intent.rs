@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
+    use interveil_sdk::{Chain, Intent, IntentPayload, VeilError};
     use std::thread;
     use std::time::Duration;
-    use veil_sdk::{Chain, Intent, IntentPayload, VeilError};
 
     #[test]
     fn builder_creates_correct_intent() {

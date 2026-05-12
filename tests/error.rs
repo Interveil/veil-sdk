@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use veil_sdk::VeilError;
+    use interveil_sdk::VeilError;
 
     #[test]
     fn error_display_works() {

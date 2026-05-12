@@ -1,6 +1,6 @@
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
+use interveil_sdk::{Chain, Intent, IntentPayload, Signer as VeilSigner, VeilError};
 use rand::rngs::OsRng;
-use veil_sdk::{Chain, Intent, IntentPayload, Signer as VeilSigner, VeilError};
 
 /// Test signer using ed25519-dalek — simulates what wallet-sdk would do
 struct TestSigner {
