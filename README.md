@@ -1,7 +1,5 @@
 # Veil SDK
 
-[![CI](https://github.com/Interveil/interveil-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/Interveil/interveil-sdk/actions/workflows/ci.yml)
-
 A portable execution language for intent-based Solana transactions. Veil SDK sits between a wallet and a node — it builds and serializes intents. It is **not** a wallet and **not** a node.
 
 ## Installation
