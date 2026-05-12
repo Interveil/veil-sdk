@@ -1,0 +1,11 @@
+/target
+.DS_Store
+.vscode/
+.idea/
+.opencode
+*.swp
+*.swo
+*~
+*.pyc
+__pycache__/
+*.dat
