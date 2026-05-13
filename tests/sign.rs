@@ -1,5 +1,5 @@
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
-use interveil_sdk::{Chain, Intent, IntentPayload, Signer as VeilSigner, VeilError};
+use interveil_sdk::{Chain, Intent, Signer as VeilSigner, VeilError};
 use rand::rngs::OsRng;
 
 /// Test signer using ed25519-dalek — simulates what wallet-sdk would do
@@ -136,11 +136,13 @@ fn same_intent_same_hash() {
     let intent = Intent {
         version: 1,
         chain: Chain::Solana,
+        action: "transfer_sol".to_string(),
+        payload: serde_json::json!({
+            "to": "11111111111111111111111111111111",
+            "lamports": 1_000_000_000
+        }),
         nonce: 100,
-        payload: IntentPayload::TransferSol {
-            to: "11111111111111111111111111111111".to_string(),
-            lamports: 1_000_000_000,
-        },
+        expires_at: 999,
     };
 
     let signed1 = intent.sign(&signer).unwrap();

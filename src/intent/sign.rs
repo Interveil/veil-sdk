@@ -40,7 +40,7 @@ impl Intent {
     /// We hash before signing because:
     ///   1. Fixed 32-byte input regardless of intent size
     ///   2. Deterministic
-    ///   3. Standard practice (Solana itself hashes messages before signing)
+    ///   3. Standard practice across major chains
     pub fn sign(&self, signer: &dyn Signer) -> Result<SignedIntent, VeilError> {
         let intent_bytes = self.to_bytes()?;
         let hash = blake3::hash(&intent_bytes);
