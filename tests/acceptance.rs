@@ -1,15 +1,17 @@
-use interveil_sdk::{Chain, Intent, IntentPayload};
+use interveil_sdk::{Chain, Intent};
 
 #[test]
 fn intent_to_bytes_works() {
     let intent = Intent {
         version: 1,
         chain: Chain::Solana,
+        action: "transfer_sol".to_string(),
+        payload: serde_json::json!({
+            "to": "11111111111111111111111111111111",
+            "lamports": 1_000_000_000
+        }),
         nonce: 42,
-        payload: IntentPayload::TransferSol {
-            to: "11111111111111111111111111111111".to_string(),
-            lamports: 1_000_000_000,
-        },
+        expires_at: 999,
     };
 
     let bytes = intent.to_bytes().unwrap();
@@ -21,11 +23,13 @@ fn deterministic_serialization() {
     let intent = Intent {
         version: 1,
         chain: Chain::Solana,
+        action: "transfer_sol".to_string(),
+        payload: serde_json::json!({
+            "to": "11111111111111111111111111111111",
+            "lamports": 1_000_000_000
+        }),
         nonce: 42,
-        payload: IntentPayload::TransferSol {
-            to: "11111111111111111111111111111111".to_string(),
-            lamports: 1_000_000_000,
-        },
+        expires_at: 999,
     };
 
     let bytes1 = intent.to_bytes().unwrap();
@@ -38,11 +42,13 @@ fn different_nonce_different_bytes() {
     let intent1 = Intent {
         version: 1,
         chain: Chain::Solana,
+        action: "transfer_sol".to_string(),
+        payload: serde_json::json!({
+            "to": "11111111111111111111111111111111",
+            "lamports": 1_000_000_000
+        }),
         nonce: 42,
-        payload: IntentPayload::TransferSol {
-            to: "11111111111111111111111111111111".to_string(),
-            lamports: 1_000_000_000,
-        },
+        expires_at: 999,
     };
 
     let mut intent2 = intent1.clone();

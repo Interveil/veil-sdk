@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use interveil_sdk::{Chain, Intent, IntentPayload, VeilError};
+    use interveil_sdk::{Chain, Intent, TransferSolPayload, TransferSplPayload, VeilError};
     use std::thread;
     use std::time::Duration;
 
@@ -11,13 +11,36 @@ mod tests {
 
         assert_eq!(intent.version, 1);
         assert_eq!(intent.chain, Chain::Solana);
+        assert_eq!(intent.action, "transfer_sol");
         assert!(intent.nonce > 0);
-        match intent.payload {
-            IntentPayload::TransferSol { to, lamports } => {
-                assert_eq!(to, "99999999999999999999999999999999");
-                assert_eq!(lamports, 500_000_000);
-            }
-        }
+        assert!(intent.expires_at > intent.nonce);
+
+        let payload: TransferSolPayload = serde_json::from_value(intent.payload).unwrap();
+        assert_eq!(payload.to, "99999999999999999999999999999999");
+        assert_eq!(payload.lamports, 500_000_000);
+    }
+
+    #[test]
+    fn transfer_spl_builder_creates_correct_intent() {
+        let intent = Intent::transfer_spl(
+            "99999999999999999999999999999999".to_string(),
+            500,
+            "So11111111111111111111111111111111111111112".to_string(),
+        );
+
+        assert_eq!(intent.version, 1);
+        assert_eq!(intent.chain, Chain::Solana);
+        assert_eq!(intent.action, "transfer_spl");
+        assert!(intent.nonce > 0);
+        assert!(intent.expires_at > intent.nonce);
+
+        let payload: TransferSplPayload = serde_json::from_value(intent.payload).unwrap();
+        assert_eq!(payload.to, "99999999999999999999999999999999");
+        assert_eq!(payload.amount, 500);
+        assert_eq!(
+            payload.mint,
+            "So11111111111111111111111111111111111111112"
+        );
     }
 
     #[test]
@@ -38,11 +61,10 @@ mod tests {
         let manual = Intent {
             version: 1,
             chain: Chain::Solana,
+            action: "transfer_sol".to_string(),
+            payload: serde_json::json!({"to": recipient, "lamports": lamports}),
             nonce: built.nonce,
-            payload: IntentPayload::TransferSol {
-                to: recipient,
-                lamports,
-            },
+            expires_at: built.expires_at,
         };
 
         assert_eq!(built.to_bytes().unwrap(), manual.to_bytes().unwrap());

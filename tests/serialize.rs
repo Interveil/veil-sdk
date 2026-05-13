@@ -1,16 +1,18 @@
 #[cfg(test)]
 mod tests {
-    use interveil_sdk::{Chain, Intent, IntentPayload};
+    use interveil_sdk::{Chain, Intent};
 
     fn make_intent(nonce: u64, lamports: u64) -> Intent {
         Intent {
             version: 1,
             chain: Chain::Solana,
+            action: "transfer_sol".to_string(),
+            payload: serde_json::json!({
+                "to": "11111111111111111111111111111111",
+                "lamports": lamports
+            }),
             nonce,
-            payload: IntentPayload::TransferSol {
-                to: "11111111111111111111111111111111".to_string(),
-                lamports,
-            },
+            expires_at: 999,
         }
     }
 
@@ -44,20 +46,24 @@ mod tests {
         let a = Intent {
             version: 1,
             chain: Chain::Solana,
+            action: "transfer_sol".to_string(),
+            payload: serde_json::json!({
+                "to": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "lamports": 100
+            }),
             nonce: 1,
-            payload: IntentPayload::TransferSol {
-                to: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_string(),
-                lamports: 100,
-            },
+            expires_at: 999,
         };
         let b = Intent {
             version: 1,
             chain: Chain::Solana,
+            action: "transfer_sol".to_string(),
+            payload: serde_json::json!({
+                "to": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                "lamports": 100
+            }),
             nonce: 1,
-            payload: IntentPayload::TransferSol {
-                to: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".to_string(),
-                lamports: 100,
-            },
+            expires_at: 999,
         };
         assert_ne!(a.to_bytes().unwrap(), b.to_bytes().unwrap());
     }

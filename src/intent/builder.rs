@@ -1,17 +1,42 @@
+use crate::chains::solana::payloads::{TransferSolPayload, TransferSplPayload};
 use crate::intent::intent::Intent;
-use crate::intent::payload::IntentPayload;
 use crate::types::{Chain, Nonce};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 impl Intent {
     /// Create a TransferSol intent in one line.
-    /// Auto-sets: version = 1, chain = Solana, nonce = current timestamp millis
+    /// Auto-sets: version = 1, chain = Solana, action = "transfer_sol",
+    /// nonce = current timestamp millis, expires_at = now + 300s
     pub fn transfer_sol(to: String, lamports: u64) -> Self {
+        let now = current_timestamp_millis();
+        let payload = TransferSolPayload { to, lamports };
         Self {
             version: 1,
             chain: Chain::Solana,
-            nonce: current_timestamp_millis(),
-            payload: IntentPayload::TransferSol { to, lamports },
+            action: "transfer_sol".to_string(),
+            payload: serde_json::to_value(&payload).expect("payload serialization infallible"),
+            nonce: now,
+            expires_at: now + 300_000,
+        }
+    }
+
+    /// Create a TransferSpl intent in one line.
+    /// Auto-sets: version = 1, chain = Solana, action = "transfer_spl",
+    /// nonce = current timestamp millis, expires_at = now + 300s
+    pub fn transfer_spl(to: String, amount: u64, mint: String) -> Self {
+        let now = current_timestamp_millis();
+        let payload = TransferSplPayload {
+            to,
+            amount,
+            mint,
+        };
+        Self {
+            version: 1,
+            chain: Chain::Solana,
+            action: "transfer_spl".to_string(),
+            payload: serde_json::to_value(&payload).expect("payload serialization infallible"),
+            nonce: now,
+            expires_at: now + 300_000,
         }
     }
 }
