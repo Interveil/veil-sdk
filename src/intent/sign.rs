@@ -1,12 +1,12 @@
 use crate::error::VeilError;
 use crate::intent::intent::Intent;
-use crate::signer::Signer;
+use crate::signer::IntentSigner;
 
 /// A signed intent ready for submission to the node.
 #[derive(Debug, Clone)]
 pub struct SignedIntent {
     pub intent: Intent,
-    pub pubkey: Vec<u8>,
+    pub signer: String,
     pub signature: Vec<u8>,
 }
 
@@ -15,18 +15,17 @@ impl SignedIntent {
     /// Format:
     /// {
     ///   "intent": "<base64 encoded intent bytes>",
-    ///   "pubkey": "<hex encoded public key>",
+    ///   "signer": "<public key string>",
     ///   "signature": "<hex encoded signature>"
     /// }
     pub fn to_json(&self) -> Result<String, VeilError> {
         let intent_b64 = base64_encode(&self.intent.to_bytes()?);
-        let pubkey_hex = hex_encode(&self.pubkey);
         let sig_hex = hex_encode(&self.signature);
 
         // Manual JSON construction to avoid serde_json dependency in main code
         Ok(format!(
-            r#"{{"intent":"{}","pubkey":"{}","signature":"{}"}}"#,
-            intent_b64, pubkey_hex, sig_hex
+            r#"{{"intent":"{}","signer":"{}","signature":"{}"}}"#,
+            intent_b64, &self.signer, sig_hex
         ))
     }
 }
@@ -35,21 +34,21 @@ impl Intent {
     /// Sign this intent with the given signer.
     ///
     /// Flow:
-    ///   intent → to_bytes() → blake3 hash (32 bytes) → signer.sign(hash) → SignedIntent
+    ///   intent → to_bytes() → blake3 hash (32 bytes) → signer.sign_message(hash) → SignedIntent
     ///
     /// We hash before signing because:
     ///   1. Fixed 32-byte input regardless of intent size
     ///   2. Deterministic
     ///   3. Standard practice across major chains
-    pub fn sign(&self, signer: &dyn Signer) -> Result<SignedIntent, VeilError> {
+    pub fn sign(&self, signer: &dyn IntentSigner) -> Result<SignedIntent, VeilError> {
         let intent_bytes = self.to_bytes()?;
         let hash = blake3::hash(&intent_bytes);
-        let signature = signer.sign(hash.as_bytes())?;
-        let pubkey = signer.public_key();
+        let signature = signer.sign_message(hash.as_bytes())?;
+        let signer_pubkey = signer.public_key();
 
         Ok(SignedIntent {
             intent: self.clone(),
-            pubkey,
+            signer: signer_pubkey,
             signature,
         })
     }

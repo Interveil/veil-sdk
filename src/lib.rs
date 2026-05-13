@@ -10,7 +10,7 @@ pub use client::{Client, SubmitResponse};
 pub use error::VeilError;
 pub use intent::intent::Intent;
 pub use intent::sign::SignedIntent;
-pub use signer::Signer;
+pub use signer::IntentSigner;
 pub use types::Chain;
 pub use types::Nonce;
 pub use types::Signature;

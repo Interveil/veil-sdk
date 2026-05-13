@@ -1,5 +1,5 @@
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
-use interveil_sdk::{Chain, Intent, Signer as VeilSigner, VeilError};
+use interveil_sdk::{Chain, Intent, IntentSigner as VeilSigner, VeilError};
 use rand::rngs::OsRng;
 
 /// Test signer using ed25519-dalek — simulates what wallet-sdk would do
@@ -20,12 +20,16 @@ impl TestSigner {
     }
 }
 
+fn bytes_to_hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{:02x}", b)).collect()
+}
+
 impl VeilSigner for TestSigner {
-    fn public_key(&self) -> Vec<u8> {
-        self.verifying_key.to_bytes().to_vec()
+    fn public_key(&self) -> String {
+        bytes_to_hex(&self.verifying_key.to_bytes())
     }
 
-    fn sign(&self, message: &[u8]) -> Result<Vec<u8>, VeilError> {
+    fn sign_message(&self, message: &[u8]) -> Result<Vec<u8>, VeilError> {
         let sig: Signature = self.signing_key.sign(message);
         Ok(sig.to_bytes().to_vec())
     }
@@ -41,7 +45,7 @@ fn sign_produces_signed_intent() {
 
     let signed = intent.sign(&signer).unwrap();
 
-    assert_eq!(signed.pubkey.len(), 32);
+    assert_eq!(signed.signer.len(), 64); // 32 bytes hex = 64 chars
     assert_eq!(signed.signature.len(), 64);
 }
 
@@ -52,7 +56,7 @@ fn sign_pubkey_matches_signer() {
 
     let signed = intent.sign(&signer).unwrap();
 
-    assert_eq!(signed.pubkey, signer.public_key());
+    assert_eq!(signed.signer, signer.public_key());
 }
 
 #[test]
@@ -115,14 +119,14 @@ fn to_json_has_correct_structure() {
     // Must be valid JSON with 3 fields
     let parsed: serde_json::Value = serde_json::from_str(&json).unwrap();
     assert!(parsed.get("intent").is_some());
-    assert!(parsed.get("pubkey").is_some());
+    assert!(parsed.get("signer").is_some());
     assert!(parsed.get("signature").is_some());
     assert_eq!(parsed.as_object().unwrap().len(), 3);
 
-    // pubkey and signature should be hex strings
-    let pubkey_str = parsed["pubkey"].as_str().unwrap();
+    // signer is the raw string (hex-encoded public key)
+    let signer_str = parsed["signer"].as_str().unwrap();
     let sig_str = parsed["signature"].as_str().unwrap();
-    assert_eq!(pubkey_str.len(), 64); // 32 bytes = 64 hex chars
+    assert_eq!(signer_str.len(), 64); // 32 bytes = 64 hex chars
     assert_eq!(sig_str.len(), 128); // 64 bytes = 128 hex chars
 
     // intent should be non-empty base64

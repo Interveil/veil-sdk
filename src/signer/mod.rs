@@ -2,4 +2,4 @@
 
 pub mod signer;
 
-pub use signer::Signer;
+pub use signer::IntentSigner;
