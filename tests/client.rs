@@ -1,5 +1,5 @@
 use ed25519_dalek::{Signature, Signer as EdSigner, SigningKey, VerifyingKey};
-use interveil_sdk::{Client, Intent, Signer, VeilError};
+use interveil_sdk::{Client, Intent, IntentSigner, VeilError};
 use rand::rngs::OsRng;
 use std::io::{Read, Write};
 use std::net::TcpListener;
@@ -25,12 +25,16 @@ impl TestSigner {
     }
 }
 
-impl Signer for TestSigner {
-    fn public_key(&self) -> Vec<u8> {
-        self.verifying_key.to_bytes().to_vec()
+fn bytes_to_hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{:02x}", b)).collect()
+}
+
+impl IntentSigner for TestSigner {
+    fn public_key(&self) -> String {
+        bytes_to_hex(&self.verifying_key.to_bytes())
     }
 
-    fn sign(&self, message: &[u8]) -> Result<Vec<u8>, VeilError> {
+    fn sign_message(&self, message: &[u8]) -> Result<Vec<u8>, VeilError> {
         let sig: Signature = self.signing_key.sign(message);
         Ok(sig.to_bytes().to_vec())
     }
@@ -147,17 +151,17 @@ fn submit_sends_exact_json_structure() {
     // Must have exactly 3 keys
     assert_eq!(parsed.as_object().unwrap().len(), 3);
     assert!(parsed.get("intent").is_some(), "missing intent field");
-    assert!(parsed.get("pubkey").is_some(), "missing pubkey field");
+    assert!(parsed.get("signer").is_some(), "missing signer field");
     assert!(parsed.get("signature").is_some(), "missing signature field");
 
     // Check encoding formats
-    let pubkey = parsed["pubkey"].as_str().unwrap();
+    let signer = parsed["signer"].as_str().unwrap();
     let sig = parsed["signature"].as_str().unwrap();
     let intent_b64 = parsed["intent"].as_str().unwrap();
 
-    // pubkey: 32 bytes = 64 hex chars
-    assert_eq!(pubkey.len(), 64);
-    assert!(pubkey.chars().all(|c| c.is_ascii_hexdigit()));
+    // signer: 32 bytes hex = 64 chars
+    assert_eq!(signer.len(), 64);
+    assert!(signer.chars().all(|c| c.is_ascii_hexdigit()));
 
     // signature: 64 bytes = 128 hex chars
     assert_eq!(sig.len(), 128);
